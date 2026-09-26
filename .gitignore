@@ -1,0 +1,7 @@
+# Ansible
+*.retry
+
+# Secrets / local files
+*.secret
+.env
+.env.*
