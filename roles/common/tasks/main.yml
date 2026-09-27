@@ -1,2 +1,4 @@
 ---
-# Configurações básicas do servidor
+- name: Configurar hostname
+  ansible.builtin.hostname:
+    name: "{{ homelab_hostname }}"
