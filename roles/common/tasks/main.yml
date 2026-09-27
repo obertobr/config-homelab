@@ -2,3 +2,7 @@
 - name: Configurar hostname
   ansible.builtin.hostname:
     name: "{{ homelab_hostname }}"
+
+- name: Configurar timezone
+  community.general.timezone:
+    name: "{{ homelab_timezone }}"
