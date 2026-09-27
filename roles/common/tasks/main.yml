@@ -3,6 +3,20 @@
   ansible.builtin.hostname:
     name: "{{ homelab_hostname }}"
 
+- name: Configurar resolução local do hostname
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1\s+'
+    line: "127.0.1.1 {{ homelab_hostname }}.{{ homelab_domain }} {{ homelab_hostname }}"
+
 - name: Configurar timezone
   community.general.timezone:
     name: "{{ homelab_timezone }}"
+
+- name: Garantir pacotes básicos
+  ansible.builtin.apt:
+    name: 
+      - git
+      - curl
+    state: present
+    update_cache: true
