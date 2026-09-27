@@ -1,0 +1,40 @@
+---
+- name: Garantir grupo samba
+  ansible.builtin.group:
+    name: samba
+    state: present
+
+- name: Garantir grupo media
+  ansible.builtin.group:
+    name: media
+    state: present
+
+- name: Garantir usuário obertobr
+  ansible.builtin.user:
+    name: obertobr
+    groups:
+      - sudo
+      - samba
+      - media
+    append: true
+    shell: /bin/bash
+
+- name: Garantir usuário pai
+  ansible.builtin.user:
+    name: pai
+    groups:
+      - samba
+      - media
+    append: true
+    shell: /usr/sbin/nologin
+    create_home: false
+
+- name: Garantir usuário amigos
+  ansible.builtin.user:
+    name: amigos
+    groups:
+      - samba
+      - media
+    append: true
+    shell: /usr/sbin/nologin
+    create_home: false
