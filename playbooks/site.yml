@@ -3,4 +3,5 @@
   hosts: homelab
   become: true
 
-  roles: []
+  roles:
+    - common
