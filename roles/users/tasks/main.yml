@@ -13,30 +13,8 @@
     state: present
   loop: "{{ homelab_users }}"
 
-- name: Adicionar usuários aos grupos desejados
-  ansible.builtin.user:
-    name: "{{ item.name }}"
-    groups: "{{ item.groups + (['sudo'] if item.admin else []) }}"
-    append: true
+- name: Sincronizar grupos dos usuários
+  ansible.builtin.include_tasks: sync_user_groups.yml
   loop: "{{ homelab_users }}"
-
-- name: Obter grupos atuais dos usuários
-  ansible.builtin.command:
-    cmd: "id -nG {{ item.name }}"
-  loop: "{{ homelab_users }}"
-  register: homelab_user_groups
-  changed_when: false
-
-- name: Remover usuários dos grupos do homelab que não estão mais declarados
-  ansible.builtin.command:
-    cmd: "gpasswd -d {{ item.0.item.name }} {{ item.1 }}"
-  loop: >-
-    {{
-      homelab_user_groups.results
-      | subelements('stdout_lines')
-    }}
-  when:
-    - item.1 in homelab_groups
-    - item.1 not in item.0.item.groups
-  register: homelab_group_removals
-  changed_when: true
+  loop_control:
+    loop_var: homelab_user

@@ -1,0 +1,30 @@
+---
+- name: Definir grupos desejados do usuário
+  ansible.builtin.set_fact:
+    homelab_desired_groups: >-
+      {{
+        (homelab_user.groups | default([]))
+        +
+        (['sudo'] if homelab_user.admin | default(false) else [])
+      }}
+
+- name: Garantir grupos desejados do usuário
+  ansible.builtin.user:
+    name: "{{ homelab_user.name }}"
+    groups: "{{ homelab_desired_groups }}"
+    append: true
+
+- name: Verificar grupos atuais do usuário
+  ansible.builtin.command:
+    cmd: "id -nG {{ homelab_user.name }}"
+  register: homelab_current_groups
+  changed_when: false
+
+- name: Remover grupos gerenciados que não foram declarados
+  ansible.builtin.command:
+    cmd: "gpasswd -d {{ homelab_user.name }} {{ item }}"
+  loop: "{{ homelab_groups + ['sudo'] }}"
+  when:
+    - item not in homelab_desired_groups
+    - item in homelab_current_groups.stdout.split()
+    - item != homelab_user.name
