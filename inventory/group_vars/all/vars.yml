@@ -1,0 +1,27 @@
+---
+homelab_hostname: homelab
+homelab_domain: homelab.local
+homelab_timezone: America/Sao_Paulo
+
+homelab_groups:
+  - geral
+  - canal
+  - midia
+
+homelab_users:
+  - name: obertobr
+    groups:
+      - geral
+      - canal
+    admin: true
+
+  - name: pai
+    groups:
+      - geral
+    admin: false
+
+  - name: amigos
+    groups:
+      - geral
+      - canal
+    admin: false

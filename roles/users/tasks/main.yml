@@ -1,44 +1,42 @@
 ---
-- name: Garantir grupo geral
+- name: Garantir grupos do homelab
   ansible.builtin.group:
-    name: geral
+    name: "{{ item }}"
     state: present
+  loop: "{{ homelab_groups }}"
 
-- name: Garantir grupo midia
-  ansible.builtin.group:
-    name: midia
+- name: Garantir usuários do homelab
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: "{{ '/bin/bash' if item.admin else '/usr/sbin/nologin' }}"
+    create_home: "{{ item.admin }}"
     state: present
+  loop: "{{ homelab_users }}"
 
-- name: Garantir grupo canal
-  ansible.builtin.group:
-    name: canal
-    state: present
-
-- name: Garantir usuário obertobr
+- name: Adicionar usuários aos grupos desejados
   ansible.builtin.user:
-    name: obertobr
-    groups:
-      - sudo
-      - geral
-      - canal
+    name: "{{ item.name }}"
+    groups: "{{ item.groups + (['sudo'] if item.admin else []) }}"
     append: true
-    shell: /bin/bash
+  loop: "{{ homelab_users }}"
 
-- name: Garantir usuário pai
-  ansible.builtin.user:
-    name: pai
-    groups:
-      - geral
-    append: true
-    shell: /usr/sbin/nologin
-    create_home: false
+- name: Obter grupos atuais dos usuários
+  ansible.builtin.command:
+    cmd: "id -nG {{ item.name }}"
+  loop: "{{ homelab_users }}"
+  register: homelab_user_groups
+  changed_when: false
 
-- name: Garantir usuário amigos
-  ansible.builtin.user:
-    name: amigos
-    groups:
-      - geral
-      - canal
-    append: true
-    shell: /usr/sbin/nologin
-    create_home: false
+- name: Remover usuários dos grupos do homelab que não estão mais declarados
+  ansible.builtin.command:
+    cmd: "gpasswd -d {{ item.0.item.name }} {{ item.1 }}"
+  loop: >-
+    {{
+      homelab_user_groups.results
+      | subelements('stdout_lines')
+    }}
+  when:
+    - item.1 in homelab_groups
+    - item.1 not in item.0.item.groups
+  register: homelab_group_removals
+  changed_when: true
