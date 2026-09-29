@@ -7,18 +7,26 @@
 
 - name: Verificar usuários existentes no Samba
   ansible.builtin.command:
-    cmd: "pdbedit -L -u {{ item.key }}"
-  loop: "{{ samba_passwords | dict2items }}"
+    cmd: "pdbedit -L -u {{ item.name }}"
+  loop: "{{ homelab_users }}"
   register: samba_users_check
   changed_when: false
   failed_when: false
 
 - name: Criar usuários no Samba
   ansible.builtin.command:
-    cmd: "smbpasswd -a -s {{ item.item.key }}"
-    stdin: "{{ item.item.value }}\n{{ item.item.value }}"
+    cmd: "smbpasswd -a -s {{ item.item.name }}"
+    stdin: "{{ samba_passwords[item.item.name] }}\n{{ samba_passwords[item.item.name] }}"
   loop: "{{ samba_users_check.results }}"
   when: item.rc != 0
+  no_log: true
+
+- name: Atualizar senhas dos usuários existentes no Samba
+  ansible.builtin.command:
+    cmd: "smbpasswd -s {{ item.item.name }}"
+    stdin: "{{ samba_passwords[item.item.name] }}\n{{ samba_passwords[item.item.name] }}"
+  loop: "{{ samba_users_check.results }}"
+  when: item.rc == 0
   no_log: true
 
 - name: Configurar Samba

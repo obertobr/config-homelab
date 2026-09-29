@@ -40,22 +40,11 @@
     browseable = yes
 
 
-[obertobr]
-    path = /mnt/disk/obertobr
-    valid users = obertobr
+{% for user in homelab_users %}
+[{{ user.name }}]
+    path = /mnt/disk/{{ user.name }}
+    valid users = {{ user.name }}
     read only = no
     browseable = yes
 
-
-[pai]
-    path = /mnt/disk/pai
-    valid users = pai
-    read only = no
-    browseable = yes
-
-
-[amigos]
-    path = /mnt/disk/amigos
-    valid users = amigos
-    read only = no
-    browseable = yes
+{% endfor %}
