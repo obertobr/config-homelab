@@ -1,0 +1,59 @@
+[global]
+    workgroup = WORKGROUP
+    server string = {{ homelab_hostname }}
+
+    security = user
+    map to guest = never
+
+    server min protocol = SMB2
+    server max protocol = SMB3
+
+    log file = /var/log/samba/log.%m
+    max log size = 1000
+
+    inherit acls = yes
+
+    create mask = 0660
+    directory mask = 2770
+
+
+[geral]
+    path = /mnt/disk/geral
+    valid users = @geral
+    read only = no
+    browseable = yes
+
+
+[midia]
+    path = /mnt/disk/midia
+    valid users = @geral
+    read only = no
+    browseable = yes
+
+
+[canal]
+    path = /mnt/disk/canal
+    valid users = @canal
+    read only = no
+    browseable = yes
+
+
+[obertobr]
+    path = /mnt/disk/obertobr
+    valid users = obertobr
+    read only = no
+    browseable = yes
+
+
+[pai]
+    path = /mnt/disk/pai
+    valid users = pai
+    read only = no
+    browseable = yes
+
+
+[amigos]
+    path = /mnt/disk/amigos
+    valid users = amigos
+    read only = no
+    browseable = yes

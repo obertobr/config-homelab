@@ -1,0 +1,38 @@
+---
+- name: Garantir que o Samba esteja instalado
+  ansible.builtin.apt:
+    name: samba
+    state: present
+    update_cache: true
+
+- name: Verificar usuários existentes no Samba
+  ansible.builtin.command:
+    cmd: "pdbedit -L -u {{ item.key }}"
+  loop: "{{ samba_passwords | dict2items }}"
+  register: samba_users_check
+  changed_when: false
+  failed_when: false
+
+- name: Criar usuários no Samba
+  ansible.builtin.command:
+    cmd: "smbpasswd -a -s {{ item.item.key }}"
+    stdin: "{{ item.item.value }}\n{{ item.item.value }}"
+  loop: "{{ samba_users_check.results }}"
+  when: item.rc != 0
+  no_log: true
+
+- name: Configurar Samba
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "/usr/bin/testparm -s %s"
+  notify: Reiniciar Samba
+
+- name: Garantir que o Samba esteja ativo
+  ansible.builtin.service:
+    name: smbd
+    state: started
+    enabled: true
