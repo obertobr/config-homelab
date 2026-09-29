@@ -25,3 +25,7 @@ homelab_users:
       - geral
       - canal
     admin: false
+
+homelab_service_users:
+  - name: media
+    group: midia

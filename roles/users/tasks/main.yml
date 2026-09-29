@@ -13,6 +13,16 @@
     state: present
   loop: "{{ homelab_users }}"
 
+- name: Garantir usuário de serviço
+  ansible.builtin.user:
+    name: "{{ homelab_service_user.name }}"
+    group: "{{ homelab_service_user.group }}"
+    shell: /usr/sbin/nologin
+    create_home: false
+    system: true
+    password_lock: true
+    state: present
+
 - name: Sincronizar grupos dos usuários
   ansible.builtin.include_tasks: sync_user_groups.yml
   loop: "{{ homelab_users }}"
