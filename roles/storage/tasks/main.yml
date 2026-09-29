@@ -13,7 +13,7 @@
     group: root
     mode: "0755"
 
-- name: Garantir diretórios do armazenamento
+- name: Garantir diretórios compartilhados
   ansible.builtin.file:
     path: "/mnt/disk/{{ item.name }}"
     state: directory
@@ -36,20 +36,14 @@
       group: geral
       mode: "2770"
 
-    - name: obertobr
-      owner: obertobr
-      group: obertobr
-      mode: "0700"
-
-    - name: pai
-      owner: pai
-      group: pai
-      mode: "0700"
-
-    - name: amigos
-      owner: amigos
-      group: amigos
-      mode: "0700"
+- name: Garantir diretórios pessoais dos usuários
+  ansible.builtin.file:
+    path: "/mnt/disk/{{ item.name }}"
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: "0700"
+  loop: "{{ homelab_users }}"
 
 - name: Garantir acesso de leitura do grupo midia na pasta
   ansible.posix.acl:
